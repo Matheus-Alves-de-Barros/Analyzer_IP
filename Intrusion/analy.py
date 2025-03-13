@@ -5,6 +5,7 @@ import pandas as pd
 ABUSEIPDB_API_KEY = "ec6d9e63ebac46d3e6fdb7412c3b5601a02aa040951dccd099d28d65f59ac046c0c05eb293530113"
 ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 
+
 country_translation = {
     "Afghanistan": "Afeganistão",
     "South Africa": "África do Sul",
@@ -186,6 +187,7 @@ country_translation = {
     "Zimbabwe": "Zimbábue"
 }
 
+
 def get_country(ip):
     headers = {
         "Key": ABUSEIPDB_API_KEY,
@@ -212,7 +214,6 @@ log_file = "fw_intrusion.log"
 with open(log_file, "r") as file:
     log_data = file.readlines()
 
-
 pattern = re.compile(r'srcip=([\d.]+).*?attack="([^"]+)"')
 
 entries = []
@@ -221,22 +222,22 @@ for line in log_data:
     if match:
         ip, attack = match.groups()
         country, abuse_score = get_country(ip)
-        entries.append({"Attack": attack, "IP": ip, "Origem": country,"Abuse Score": abuse_score})
-        formatar_ips("ip_intruser.txt", "envio_plan.txt")
+        entries.append({"Attack": attack, "IP": ip, "Origem": country, "Abuse Score": abuse_score})
 
 df = pd.DataFrame(entries)
 df.to_excel("ips.xlsx", index=False)
 
 print("Arquivo gerado: ips.xlsx")
 
-def format_envio(ip_intruser.xlsx, envio_plan.txt)
-    with open(ip_intruser.xlsx, "r", encoding="utf-8") as file:
-        linhas = [linha.strip().split(maxsplit=1) for linha in file if linha.strip()]
 
-    resultado = " | ".join([f"{ip} - {pais}" for ip, pais in linhas])
+def format_envio(ip_intruser, envio_plan):
+    df = pd.read_excel(ip_intruser)
+    
+    resultado = " | ".join([f"{row['IP']} - {row['Origem']}" for _, row in df.iterrows()])
 
     with open(envio_plan, "w", encoding="utf-8") as file:
         file.write(resultado)
 
 
-
+# Chamada da função corrigida
+format_envio("ips.xlsx", "envio_plan.txt")
