@@ -1,10 +1,16 @@
 import re
 import requests
 import pandas as pd
+from openpyxl import Workbook
 
+# Caminhos
+LOG = 'fw_vpn.log'
+EXCEL = 'dados.xlsx'
+FORMAT = 'ips_form.txt'
 ABUSEIPDB_API_KEY = "ec6d9e63ebac46d3e6fdb7412c3b5601a02aa040951dccd099d28d65f59ac046c0c05eb293530113"
 ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 
+# Dicionário para traduzir nomes de países
 country_translation = {
     "Afghanistan": "Afeganistão",
     "South Africa": "África do Sul",
@@ -186,57 +192,65 @@ country_translation = {
     "Zimbabwe": "Zimbábue"
 }
 
-
-def get_country(ip):
+# Função para consultar o AbusedIP
+def abused(ip):
     headers = {
-        "Key": ABUSEIPDB_API_KEY,
-        "Accept": "application/json"
+        'Key': ABUSEIPDB_API_KEY,
+        'Accept': 'application/json'
     }
     params = {
-        "ipAddress": ip,
-        "verbose": "true"
+        'ipAddress': ip,
+        'maxAgeInDays': '90'
     }
     try:
         response = requests.get(ABUSEIPDB_URL, headers=headers, params=params)
         data = response.json()
-
-        country = data.get("data", {}).get("countryName", "Desconhecido")
-        abuse_score = data.get("data", {}).get("abuseConfidenceScore", "N/A")
-
+        country = data.get('data', {}).get('countryName', 'Desconhecido')
+        abuse_score = data.get('data', {}).get('abuseConfidenceScore', 'N/A')
         return country_translation.get(country, country), abuse_score
     except Exception as e:
-        print(f"Erro ao buscar IP {ip}: {e}")
+        print(f"Erro ao consultar IP {ip}: {e}")
         return "Erro", "N/A"
 
+# Extraindo Dados
+def extraindo_ips(LOG):
+    dados = []
+    with open(LOG, 'r') as arquivo:
+        for linha in arquivo:
+            match = re.search(r'user="([^"]+)"\s+remip=([\d.]+)', linha)
+            if match:
+                user, ip = match.groups()
+                dados.append({'Usuário': user, 'IP': ip})
+    return dados
 
-log_file = "fw_vpn.log"
-with open(log_file, "r") as file:
-    log_data = file.readlines()
+# Função para salvar na planilha
+def excel(dados, EXCEL):
+    df = pd.DataFrame(dados)
+    df.to_excel(EXCEL, index=False)
+    print(f"Planilha salva em {EXCEL}")
 
+# Função para gerar o arquivo .txt
+def gerar_txt(dados, FORMAT):
+    formato = " | ".join([f"{entry['IP']} - {entry['País']}" for entry in dados])
+    with open(FORMAT, 'w', encoding='utf-8') as arquivo:
+        arquivo.write(formato)
+    print(f"Arquivo txt gerado em {FORMAT}")
 
-pattern = re.compile(r'user="([^"]+)"\s+remip=([\d.]+)')
+# Execução do programa
+if __name__ == "__main__":
+    # Extraindo dados
+    dados_log = extraindo_ips(LOG)
+    print(f"Dados extraídos de {LOG}")
 
-entries = []
-for line in log_data:
-    match = pattern.search(line)
-    if match:
-        user, ip = match.groups()
-        country, abuse_score = get_country(ip)
-        entries.append({"Usuário": user, "IP": ip, "País": country, "Abuse Score": abuse_score})
+    # Consultando IPs
+    for entry in dados_log:
+        ip = entry["IP"]
+        country, abuse_score = abused(ip)
+        entry['País'] = country
+        entry['Abuse Score'] = abuse_score
 
+    # Salvando na planilha
+    excel(dados_log, EXCEL)
 
-df = pd.DataFrame(entries)
-df.to_excel("ips_vpn.xlsx", index=False)
-
-print("Arquivo gerado: ips.xlsx")
-
-def format_envio(ip_vpn.xlsx, envio_plan.txt)
-    with open(ip_vpn.xlsx, "r", encoding="utf-8") as file:
-        linhas = [linha.strip().split(maxsplit=1) for linha in file if linha.strip()]
-
-    resultado = " | ".join([f"{ip} - {pais}" for ip, pais in linhas])
-
-    with open(envio_plan, "w", encoding="utf-8") as file:
-        file.write(resultado)
-
-formatar_ips("ip_vpn.txt", "envio_plan.txt")
+    # Gerando txt
+    gerar_txt(dados_log, FORMAT)
