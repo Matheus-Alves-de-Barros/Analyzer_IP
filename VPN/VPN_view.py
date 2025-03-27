@@ -6,8 +6,8 @@ from dici_country import country_translation, country_code_to_name
 
 # Configurações
 LOG_FILE = 'fw_vpn.log'
-EXCEL_OUTPUT = 'dados.xlsx'
-TXT_OUTPUT = 'ips_form.txt'
+EXCEL_OUTPUT = 'ip_vpn.xlsx'
+TXT_OUTPUT = 'padrão_vpn.txt'
 ABUSEIPDB_API_KEY = "ec6d9e63ebac46d3e6fdb7412c3b5601a02aa040951dccd099d28d65f59ac046c0c05eb293530113"
 ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 MAX_RETRIES = 3

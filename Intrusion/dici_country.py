@@ -241,7 +241,7 @@ country_code_to_name = {
     "SK": "Slovakia",
     "SI": "Slovenia",
     "ES": "Spain",
-    "US": "United States of America",
+    "US": "United States",
     "EE": "Estonia",
     "SZ": "Eswatini",
     "ET": "Ethiopia",
