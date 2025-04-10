@@ -1,0 +1,7 @@
+=== KNOWN BOTS DETECTION ===
+52.202.52.82 - Estados Unidos (Score: 82)
+
+=== SIGNATURE DETECTION ===
+
+
+=== OUTROS TIPOS ===

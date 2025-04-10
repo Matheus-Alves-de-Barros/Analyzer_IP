@@ -4,7 +4,7 @@ import pandas as pd
 import time
 from dici_country import country_translation, country_code_to_name
 
-# Configurações (ajustadas para intrusão)
+# Configurações 
 LOG_FILE = 'fw_intrusion.log'
 EXCEL_OUTPUT = 'ip_intrusion.xlsx'
 TXT_OUTPUT = 'padrão_intrusion.txt'
