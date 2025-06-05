@@ -13,8 +13,8 @@ ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 MAX_RETRIES = 3
 
 def extrair_ips(arquivo_log):
-    """Extrai usuários e IPs do arquivo de log"""
-    padrao = r'user="([^"]+)"\s+remip=([\d.]+)'
+    """Extrai usuários e IPs do arquivo de log com padrão corrigido"""
+    padrao = r'user="([^"]+)".*?remip=([\d.]+)'
     dados = []
     
     try:
@@ -22,7 +22,10 @@ def extrair_ips(arquivo_log):
             for linha in f:
                 match = re.search(padrao, linha)
                 if match:
-                    dados.append({'Usuário': match.group(1), 'IP': match.group(2)})
+                    dados.append({
+                        'Usuário': match.group(1), 
+                        'IP': match.group(2).strip()  # Remove espaços em branco se houver
+                    })
         return dados
     except FileNotFoundError:
         print(f"[ERRO] Arquivo {arquivo_log} não encontrado!")
@@ -84,6 +87,19 @@ def gerar_saidas(dados):
         formato = " | ".join([f"{item['IP']} - {item['País']}" for item in ips_unicos])
         f.write(formato)
 
+def detectar_padroes_suspeitos(usuario):
+    """Detecta padrões suspeitos em nomes de usuário"""
+    padroes = [
+        (r'^\d+[a-z]+\d+', 'Possível usuário gerado automaticamente'),
+        (r'^test$', 'Usuário de teste - potencial força bruta'),
+        (r'\.', 'Possível tentativa de credential stuffing')
+    ]
+    
+    for padrao, descricao in padroes:
+        if re.search(padrao, usuario):
+            return descricao
+    return None
+
 def main():
     print("=== Iniciando análise de IPs ===")
     
@@ -96,19 +112,22 @@ def main():
         print("Nenhum IP encontrado para análise")
         return
     
-    print(f"\n🔍 {len(ips)} IPs encontrados. Iniciando consultas...")
+    print(f"\n� {len(ips)} IPs encontrados. Iniciando consultas...")
     
     resultados = []
     for i, item in enumerate(ips, 1):
         print(f"[{i}/{len(ips)}] Processando {item['IP']}...")
         pais, score = consultar_abuseipdb(item['IP'])
+        alerta = detectar_padroes_suspeitos(item['Usuário'])
+        
         resultados.append({
             'Usuário': item['Usuário'],
             'IP': item['IP'],
             'País': pais,
-            'Abuse Score': score
+            'Abuse Score': score,
+            'Alerta': alerta or 'Nenhum'
         })
-        time.sleep(1.5)
+        time.sleep(1.5)  # Respeita o rate limit da API
     
     gerar_saidas(resultados)
     print(f"\n✅ Análise concluída! Resultados salvos em:")
