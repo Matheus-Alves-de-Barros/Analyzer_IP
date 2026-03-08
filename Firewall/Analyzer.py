@@ -9,7 +9,7 @@ from dici_country import country_translation, country_code_to_name
 LOG_FILE = 'fw_analyzer.log'
 EXCEL_OUTPUT = 'fortiweb_attack_report.xlsx'
 TXT_OUTPUT = 'ips_analyzer.txt'
-ABUSEIPDB_API_KEY = "ec6d9e63ebac46d3e6fdb7412c3b5601a02aa040951dccd099d28d65f59ac046c0c05eb293530113"
+ABUSEIPDB_API_KEY = "7cfddf5d557b1ac15be034bb3b222f3af59f783f090b42dcb99b82ee2c94d9c9c5facf3c5ab13b4b"
 ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 MAX_RETRIES = 3
 
